@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confession Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose: #ff4fa3;
+    --rose-pale: #ffb3d9;
+    --rose-dark: #c4006e;
+    --violet: #9b30d9;
+    --jaune: #ffe247;
+    --blanc: #fff9fd;
+    --noir: #1a0a14;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--noir);
+    background-image: radial-gradient(ellipse at 30% 20%, #3a0a2a 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, #0a0a3a 0%, transparent 50%);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    padding: 20px 14px 50px;
+  }
+  .container { max-width: 680px; margin: 0 auto; }
+  .page { display:none; animation: popin 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+  .page.active { display:block; }
+  @keyframes popin { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+
+  .tv-frame {
+    background: linear-gradient(145deg, #2a1a3a, #1a0a24);
+    border: 3px solid var(--rose);
+    border-radius: 20px;
+    padding: 28px 22px;
+    box-shadow: 0 0 40px rgba(255,79,163,0.3), 0 0 80px rgba(155,48,217,0.15);
+  }
+
+  .emission-title {
+    font-family: 'Pacifico', cursive;
+    font-size: 26px;
+    background: linear-gradient(135deg, var(--rose), var(--jaune), var(--rose-pale));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .emission-sub {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--rose-pale);
+    opacity: 0.7;
+    text-align: center;
+    margin-top: 4px;
+    margin-bottom: 16px;
+  }
+  .hearts-deco {
+    text-align: center;
+    font-size: 18px;
+    letter-spacing: 8px;
+    margin: 10px 0 20px;
+  }
+  .confessionnal {
+    background: rgba(255,79,163,0.08);
+    border: 1px solid rgba(255,79,163,0.25);
+    border-radius: 12px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    position: relative;
+  }
+  .conf-label {
+    position: absolute;
+    top: -10px; left: 16px;
+    background: var(--rose);
+    color: var(--blanc);
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .conf-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--blanc);
+    margin-top: 8px;
+  }
+  .conf-text strong { color: var(--jaune); font-weight: 900; }
+
+  .enigme-bubble {
+    background: linear-gradient(135deg, rgba(155,48,217,0.15), rgba(255,79,163,0.15));
+    border: 2px solid var(--violet);
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin: 14px 0;
+    text-align: center;
+  }
+  .enigme-question {
+    font-size: 16px;
+    color: var(--blanc);
+    line-height: 1.8;
+    font-style: italic;
+  }
+  .enigme-question em { color: var(--rose-pale); font-style: normal; font-weight: 700; }
+  .hint { font-size: 12px; color: var(--jaune); margin-top: 8px; opacity: 0.8; }
+
+  .micro-instruction {
+    background: rgba(255,226,71,0.1);
+    border: 1px dashed var(--jaune);
+    border-radius: 10px;
+    padding: 14px;
+    margin: 14px 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--jaune);
+    font-weight: 700;
+    line-height: 1.7;
+  }
+  .micro-big { font-size: 34px; display: block; margin-bottom: 6px; animation: mic-shake 1.5s ease-in-out infinite; }
+  @keyframes mic-shake { 0%,100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+
+  input[type="text"] {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,79,163,0.3);
+    border-radius: 30px;
+    padding: 12px 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--blanc);
+    outline: none;
+    text-align: center;
+    transition: all 0.3s;
+    margin: 10px 0 6px;
+  }
+  input:focus { border-color: var(--rose); box-shadow: 0 0 20px rgba(255,79,163,0.3); }
+  input::placeholder { color: rgba(255,255,255,0.3); font-size: 13px; }
+
+  .err {
+    text-align: center;
+    font-size: 12px;
+    color: var(--rose);
+    font-weight: 700;
+    display: none;
+    margin-top: 4px;
+  }
+
+  .btn {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--rose), var(--violet));
+    color: var(--blanc);
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(255,79,163,0.4);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: scale(0.97); }
+
+  .progress-hearts {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .prog-heart { font-size: 26px; opacity: 0.2; filter: grayscale(1); transition: all 0.4s; }
+  .prog-heart.done { opacity:1; filter:none; }
+  .prog-heart.active { opacity:1; filter:none; animation: pop 0.6s cubic-bezier(0.34,1.56,0.64,1) infinite alternate; }
+  @keyframes pop { from { transform:scale(0.9); } to { transform:scale(1.15); } }
+
+  .score-tag {
+    display: block;
+    text-align: center;
+    background: rgba(255,226,71,0.12);
+    border: 1px solid var(--jaune);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 11px;
+    color: var(--jaune);
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  /* FINAL */
+  .final-boom { text-align: center; padding: 8px 0; }
+  .confetti-text { font-size: 50px; display: block; margin-bottom: 8px; animation: spin-bounce 1s ease-in-out infinite alternate; }
+  @keyframes spin-bounce { from { transform: rotate(-8deg) scale(0.95); } to { transform: rotate(8deg) scale(1.05); } }
+
+  .final-title {
+    font-family: 'Pacifico', cursive;
+    font-size: 30px;
+    background: linear-gradient(135deg, var(--rose), var(--jaune));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 10px 0;
+  }
+  .final-text { font-size: 16px; color: var(--blanc); line-height: 1.9; margin: 12px 0; }
+
+  .boite-lettres-box {
+    background: linear-gradient(135deg, rgba(255,79,163,0.15), rgba(155,48,217,0.15));
+    border: 2px solid var(--rose);
+    border-radius: 16px;
+    padding: 22px 18px;
+    margin: 18px 0;
+    text-align: center;
+  }
+  .boite-emoji { font-size: 50px; display: block; margin-bottom: 12px; animation: bounce 1s ease-in-out infinite alternate; }
+  @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+  .boite-instruction { font-size: 20px; font-weight: 900; color: var(--jaune); line-height: 1.6; margin-bottom: 8px; }
+  .boite-sub { font-size: 14px; color: var(--rose-pale); opacity: 0.8; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- PAGE 0 -->
+<div class="page active" id="page-0">
+  <div class="tv-frame">
+    <div class="emission-title">Confession Room 💕</div>
+    <div class="emission-sub">une émission exclusive pour Thomas</div>
+    <div class="hearts-deco">💗 💜 💗 💜 💗</div>
+    <div class="confessionnal">
+      <div class="conf-label">CAMÉRA EN DIRECT</div>
+      <div class="conf-text">
+        Thomas, bienvenue dans le confessionnal.<br><br>
+        On sait tous que tu as des expressions... <strong>reconnaissables.</strong><br>
+        Et que la personne en face de toi aussi.<br><br>
+        Deux épreuves t'attendent. Deux phrases à retrouver. Deux moments de honte assumée.
+      </div>
+    </div>
+    <button class="btn" onclick="goTo(1)">ENTRER DANS LE CONFESSIONNAL →</button>
+  </div>
+</div>
+
+<!-- PAGE 1 -->
+<div class="page" id="page-1">
+  <div class="tv-frame">
+    <div class="progress-hearts">
+      <span class="prog-heart active">💗</span>
+      <span class="prog-heart">💗</span>
+    </div>
+    <span class="score-tag">ÉPREUVE 1 / 2</span>
+    <div class="confessionnal">
+      <div class="conf-label">INDICE</div>
+      <div class="conf-text">
+        Il y a une fille qui s'appelle <strong>Virginie</strong>.<br>
+        On dit que toi, en version homme, tu lui ressembles beaucoup.<br>
+        Elle avait une phrase culte.<br>
+        Et Blandine te la sort à tout moment — et ça t'énerve.
+      </div>
+    </div>
+    <div class="enigme-bubble">
+      <div class="enigme-question">
+        Quelle est la phrase culte de <em>Virginie</em>... version Blandine ?
+      </div>
+      <div class="hint">💡 5 mots. Commence par "Mais".</div>
+    </div>
+    <div class="micro-instruction">
+      <span class="micro-big">🎤</span>
+      Prononce-la à voix haute devant Blandine,<br>puis tape-la ci-dessous.
+    </div>
+    <input type="text" id="r1" placeholder="Tape la phrase ici...">
+    <div class="err" id="e1">❌ Pas tout à fait... écoute bien Blandine quand elle t'énerve 😏</div>
+    <button class="btn" onclick="check(1,['MAIS IL EST FOU MALADE','IL EST FOU MALADE'],2)">VALIDER 💗</button>
+  </div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page" id="page-2">
+  <div class="tv-frame">
+    <div class="progress-hearts">
+      <span class="prog-heart done">💗</span>
+      <span class="prog-heart active">💗</span>
+    </div>
+    <span class="score-tag">ÉPREUVE 2 / 2</span>
+    <div class="confessionnal">
+      <div class="conf-label">INDICE</div>
+      <div class="conf-text">
+        Cette fois c'est <strong>toi</strong> le coupable.<br>
+        Quand Blandine t'agace, quand elle insiste, quand tu es à bout...<br>
+        Tu lâches toujours le même son.<br>
+        Un seul mot. Une syllabe étirée. Un cri du cœur.<br><br>
+        Et Blandine te le repique à chaque fois — <strong>exprès.</strong>
+      </div>
+    </div>
+    <div class="enigme-bubble">
+      <div class="enigme-question">
+        C'est quoi ce son que tu fais quand tu es à bout ?
+      </div>
+      <div class="hint">💡 Ça commence par W. Très expressif. C'est toi tout craché.</div>
+    </div>
+    <div class="micro-instruction">
+      <span class="micro-big">🎤</span>
+      Dis-le à voix haute, avec conviction,<br>puis tape-le ci-dessous.
+    </div>
+    <input type="text" id="r2" placeholder="Tape le son ici...">
+    <div class="err" id="e2">❌ Non non... réfléchis à ce que tu lâches quand tu t'énerves 😄</div>
+    <button class="btn" onclick="check(2,['WAAAAH','WAAAH','WAAH','WAH','WAAAAAAH','WAAAAAH','WAAAAAAAH'],'final')">VALIDER 💗</button>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div class="page" id="page-final">
+  <div class="tv-frame">
+    <div class="final-boom">
+      <span class="confetti-text">🎊</span>
+      <div class="final-title">Bravo Thomas !</div>
+      <div class="hearts-deco">💗 💜 💗 💜 💗</div>
+      <div class="final-text">
+        Tu as survécu au confessionnal.<br>
+        Virginie serait fière. Ou énervée.<br>
+        Les deux, probablement. 😄
+      </div>
+      <div class="boite-lettres-box">
+        <span class="boite-emoji">📬</span>
+        <div class="boite-instruction">Rends-toi à la boîte aux lettres.</div>
+        <div class="boite-sub">Quelque chose t'y attend.<br>Cherche bien — ça ne se voit pas forcément au premier coup d'œil.</div>
+      </div>
+      <div class="hearts-deco" style="margin-top:16px;">✨ 💫 ✨ 💫 ✨</div>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+function goTo(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const id = n === 'final' ? 'page-final' : 'page-' + n;
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function check(num, answers, next) {
+  const input = document.getElementById('r'+num);
+  const err = document.getElementById('e'+num);
+  const val = input.value.trim().toUpperCase();
+  const ok = answers.some(a => val === a.toUpperCase());
+  if (ok) {
+    err.style.display = 'none';
+    input.style.borderColor = '#a0ff80';
+    setTimeout(() => goTo(next), 600);
+  } else {
+    err.style.display = 'block';
+    input.style.borderColor = 'var(--rose)';
+    input.animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:400});
+  }
+}
+</script>
+</body>
+</html>
