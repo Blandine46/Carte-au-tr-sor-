@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carnet retrouvé — La carte</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Archivo:ital,wght@0,400;0,500;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --kraft: #d4b896;
+    --kraft-dark: #b89870;
+    --teal: #2f6b6b;
+    --teal-dark: #1e4a4a;
+    --corail: #e8765a;
+    --corail-dark: #c25a40;
+    --creme: #faf3e6;
+    --encre: #2a2420;
+    --jaune-tape: #e8d29a;
+    --vert-tampon: #3d6b4a;
+    --ocean: #7ba7c4;
+    --sable: #e8d88a;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--teal-dark);
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,0.03) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(255,255,255,0.03) 0%, transparent 40%);
+    font-family: 'Archivo', sans-serif;
+    color: var(--encre);
+    min-height: 100vh;
+    padding: 24px 14px 50px;
+  }
+
+  .container { max-width: 700px; margin: 0 auto; }
+
+  .nav-top {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+    padding: 0 4px;
+  }
+
+  .nav-brand {
+    font-family:'Caveat', cursive;
+    font-size:22px;
+    font-weight:700;
+    color:var(--creme);
+    opacity:0.9;
+  }
+
+  .nav-page-num {
+    font-family:'Archivo', sans-serif;
+    font-size:11px;
+    letter-spacing:2px;
+    color:var(--creme);
+    opacity:0.5;
+    text-transform:uppercase;
+  }
+
+  .carnet-page {
+    background: var(--kraft);
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(180,150,110,0.15) 27px, rgba(180,150,110,0.15) 28px);
+    border-radius: 3px;
+    padding: 36px 30px;
+    position: relative;
+    box-shadow:
+      0 20px 50px rgba(0,0,0,0.5),
+      0 2px 0 rgba(255,255,255,0.1) inset;
+    margin-bottom: 20px;
+  }
+
+  .carnet-page::before {
+    content:'';
+    position:absolute;
+    top:0; left:24px;
+    width:3px;
+    height:100%;
+    background: repeating-linear-gradient(0deg, var(--corail) 0px, var(--corail) 8px, transparent 8px, transparent 16px);
+    opacity: 0.5;
+  }
+
+  .tape {
+    position:absolute;
+    width:70px;
+    height:28px;
+    background: var(--jaune-tape);
+    opacity:0.75;
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+  }
+  .tape.tl { top:-12px; left:30px; transform:rotate(-6deg); }
+  .tape.tr { top:-12px; right:30px; transform:rotate(5deg); }
+
+  .stamp-corner {
+    position:absolute;
+    top:18px; right:20px;
+    border:2px solid var(--vert-tampon);
+    color:var(--vert-tampon);
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:14px;
+    padding:4px 10px;
+    transform:rotate(8deg);
+    opacity:0.7;
+    border-radius: 50%/40%;
+  }
+
+  .page-title {
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:32px;
+    color:var(--teal-dark);
+    margin-bottom:6px;
+    margin-left: 36px;
+  }
+
+  .page-subtitle {
+    font-family:'Archivo', sans-serif;
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--corail-dark);
+    margin-bottom:20px;
+    margin-left: 36px;
+    font-weight:700;
+  }
+
+  .page-text {
+    font-family:'Archivo', sans-serif;
+    font-size:14.5px;
+    line-height:1.85;
+    color: #3a3028;
+    margin-bottom:14px;
+    margin-left: 36px;
+  }
+
+  .polaroid {
+    background:#fff;
+    padding: 10px 10px 36px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    display:inline-block;
+    margin: 12px auto 16px;
+    transform: rotate(-2deg);
+    position:relative;
+  }
+
+  .polaroid-img {
+    width: 160px;
+    height: 160px;
+    background: linear-gradient(135deg, var(--teal) 0%, #4a8a8a 100%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:60px;
+  }
+
+  .polaroid-caption {
+    position:absolute;
+    bottom: 8px;
+    left:0; right:0;
+    text-align:center;
+    font-family:'Caveat', cursive;
+    font-size:15px;
+    color:#444;
+  }
+
+  .polaroid-wrap { text-align:center; }
+
+  /* MAP CONTAINER */
+  .map-wrap {
+    position: relative;
+    width: calc(100% - 36px);
+    margin-left: 36px;
+    border: 3px solid var(--kraft-dark);
+    border-radius: 4px;
+    background: #e8dfc0;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.15);
+  }
+
+  .map-wrap svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .x-marker {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 36px;
+    height: 36px;
+    pointer-events: none;
+    animation: pulse-x 2s ease-in-out infinite;
+  }
+
+  .x-marker::before,
+  .x-marker::after {
+    content: '';
+    position: absolute;
+    background: var(--corail-dark);
+    top: 50%; left: 50%;
+    width: 28px; height: 4px;
+    transform-origin: center;
+  }
+  .x-marker::before { transform: translate(-50%,-50%) rotate(45deg); }
+  .x-marker::after { transform: translate(-50%,-50%) rotate(-45deg); }
+
+  @keyframes pulse-x {
+    0%,100% { transform: translate(-50%,-50%) scale(1); filter: drop-shadow(0 0 4px rgba(194,90,64,0.4)); }
+    50% { transform: translate(-50%,-50%) scale(1.2); filter: drop-shadow(0 0 12px rgba(194,90,64,0.8)); }
+  }
+
+  .circle-pulse {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid var(--corail-dark);
+    transform: translate(-50%, -50%);
+    animation: ring 2s ease-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes ring {
+    0% { width:18px; height:18px; opacity:0.8; }
+    100% { width:60px; height:60px; opacity:0; }
+  }
+
+  .location-label {
+    position: absolute;
+    transform: translate(-50%, 14px);
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--corail-dark);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .enigme-card {
+    background: var(--creme);
+    border-left: 5px solid var(--corail);
+    padding: 18px 20px;
+    margin: 16px 36px 16px 36px;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.08);
+  }
+
+  .enigme-label {
+    font-family:'Archivo', sans-serif;
+    font-size:10px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--corail-dark);
+    font-weight:700;
+    margin-bottom:10px;
+  }
+
+  .enigme-content {
+    font-family:'Caveat', cursive;
+    font-size:19px;
+    line-height:1.5;
+    color:var(--encre);
+  }
+
+  .hiero-deco {
+    text-align:center;
+    font-size:20px;
+    letter-spacing:8px;
+    color: var(--kraft-dark);
+    opacity:0.5;
+    margin: 14px 36px;
+  }
+
+  @media(max-width:600px) {
+    .carnet-page { padding: 28px 18px; }
+    .page-title, .page-subtitle, .page-text { margin-left: 26px; }
+    .enigme-card, .hiero-deco { margin-left: 26px; margin-right: 6px; }
+    .map-wrap { width: calc(100% - 26px); margin-left: 26px; }
+    .page-title { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="nav-top">
+    <div class="nav-brand">🧳 Carnet retrouvé</div>
+    <div class="nav-page-num">page 7</div>
+  </div>
+
+  <div class="carnet-page">
+    <div class="tape tl"></div>
+    <div class="tape tr"></div>
+    <div class="stamp-corner">en route !</div>
+
+    <div class="page-title">Le galet de la boîte aux lettres</div>
+    <div class="page-subtitle">page tachée de sable</div>
+
+    <div class="page-text">
+      Toi qui connais un endroit caché pour te garer — cette carte va te montrer où exactement.
+    </div>
+
+    <div class="polaroid-wrap">
+      <div class="polaroid">
+        <div class="polaroid-img" style="background:linear-gradient(135deg,#7ba7c4,#4a7a9a);">🐚</div>
+        <div class="polaroid-caption">le galet qui parle</div>
+      </div>
+    </div>
+
+    <div class="page-text">
+      Suis le tracé. Touche le ✕ sur la carte — ton téléphone te montrera le chemin. Quelque chose t'attend là-bas.
+    </div>
+
+    <!-- CARTE SVG -->
+    <div class="map-wrap" style="height: 320px;">
+      <svg viewBox="0 0 600 320" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0;width:100%;height:100%;">
+        <rect width="600" height="320" fill="#ddd5a8"/>
+
+        <!-- Océan -->
+        <path d="M0,0 L160,0 L140,55 L155,110 L130,165 L150,220 L125,280 L145,320 L0,320 Z" fill="#7ba7c4" opacity="0.6"/>
+        <path d="M30,75 Q50,65 70,75 Q90,85 110,75" stroke="#5a8aab" stroke-width="1.5" fill="none" opacity="0.5"/>
+        <path d="M20,130 Q45,120 65,130 Q85,140 105,130" stroke="#5a8aab" stroke-width="1.5" fill="none" opacity="0.5"/>
+        <path d="M35,190 Q55,180 75,190 Q95,200 115,190" stroke="#5a8aab" stroke-width="1.5" fill="none" opacity="0.5"/>
+        <text x="50" y="150" font-family="serif" font-style="italic" font-size="12" fill="#3a6a8a" opacity="0.7" text-anchor="middle">Océan</text>
+        <text x="50" y="166" font-family="serif" font-style="italic" font-size="12" fill="#3a6a8a" opacity="0.7" text-anchor="middle">Atlantique</text>
+
+        <!-- Plage -->
+        <path d="M140,0 L200,0 L185,55 L195,110 L175,165 L190,220 L170,280 L188,320 L145,320 L125,280 L150,220 L130,165 L155,110 L140,55 Z" fill="#e8d88a" opacity="0.8"/>
+
+        <!-- Route -->
+        <path d="M195,160 L580,160" stroke="#8a7a5a" stroke-width="7" opacity="0.7"/>
+        <path d="M195,160 L580,160" stroke="#c8b870" stroke-width="2.5" opacity="0.5"/>
+        <text x="380" y="153" font-family="serif" font-size="11" fill="#5a4a2a" text-anchor="middle" font-style="italic">Route de La Piste</text>
+
+        <!-- Rue secrète -->
+        <path d="M310,160 L185,235" stroke="#8a7a5a" stroke-width="4" stroke-dasharray="6,3" opacity="0.6"/>
+
+        <!-- Forêt -->
+        <g opacity="0.5">
+          <polygon points="430,95 420,128 440,128" fill="#4a7a3a"/>
+          <polygon points="430,85 418,120 442,120" fill="#5a8a4a"/>
+          <rect x="427" y="128" width="6" height="11" fill="#8a6a3a"/>
+          <polygon points="480,90 470,123 490,123" fill="#4a7a3a"/>
+          <polygon points="480,80 468,115 492,115" fill="#5a8a4a"/>
+          <rect x="477" y="123" width="6" height="11" fill="#8a6a3a"/>
+          <polygon points="455,98 445,128 465,128" fill="#4a7a3a"/>
+          <polygon points="455,88 443,120 467,120" fill="#5a8a4a"/>
+          <rect x="452" y="128" width="6" height="11" fill="#8a6a3a"/>
+        </g>
+        <text x="465" y="145" font-family="serif" font-size="10" fill="#3a5a2a" text-anchor="middle" font-style="italic" opacity="0.7">Forêt des Landes</text>
+
+        <!-- Parking -->
+        <rect x="250" y="225" width="38" height="26" rx="2" fill="#c8c0a0" stroke="#8a7a5a" stroke-width="1.5" opacity="0.8"/>
+        <text x="269" y="243" font-family="sans-serif" font-size="13" fill="#4a4a4a" text-anchor="middle" font-weight="bold">P</text>
+        <path d="M310,160 L269,224" stroke="#c25a40" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+        <text x="269" y="266" font-family="serif" font-size="9" fill="#5a4a2a" text-anchor="middle" font-style="italic">parking secret</text>
+
+        <!-- Boussole -->
+        <circle cx="545" cy="42" r="26" fill="rgba(250,243,230,0.9)" stroke="#b89870" stroke-width="2"/>
+        <text x="545" y="24" font-family="serif" font-size="11" fill="#c25a40" text-anchor="middle" font-weight="bold">N</text>
+        <line x1="545" y1="19" x2="545" y2="60" stroke="#5a4a2a" stroke-width="1" opacity="0.4"/>
+        <line x1="520" y1="42" x2="570" y2="42" stroke="#5a4a2a" stroke-width="1" opacity="0.4"/>
+
+        <rect width="600" height="320" fill="none" stroke="#b89870" stroke-width="3" opacity="0.4"/>
+      </svg>
+
+      <a href="https://www.google.com/maps/search/?api=1&query=43.6383827,-1.4480844" target="_blank" style="text-decoration:none;">
+        <div class="x-marker" style="left:32%; top:70%; cursor:pointer; pointer-events:auto;"></div>
+        <div class="circle-pulse" style="left:32%; top:70%;"></div>
+        <div class="location-label" style="left:32%; top:70%;">TOUCHE ICI</div>
+      </a>
+    </div>
+
+    <div class="enigme-card">
+      <div class="enigme-label">Indice de localisation</div>
+      <div class="enigme-content">
+        Gare-toi par ta rue secrète.<br>
+        Marche jusqu'à l'eau.
+      </div>
+    </div>
+
+    <div class="enigme-card" style="border-left-color: var(--teal);">
+      <div class="enigme-label">Une fois sur place</div>
+      <div class="enigme-content">
+        Il y a là des bois flottés, plantés dans le sable comme des totems.<br>
+        Chacun porte un mot, gravé ou peint.<br><br>
+        Cherche celui où c'est écrit <strong style="color:var(--corail-dark);">FANTAISIE</strong>.<br>
+        Quelque chose t'attend tout près.
+      </div>
+    </div>
+
+    <div class="hiero-deco">~ 🌊 ~ 🐚 ~ 🌊 ~</div>
+
+    <div class="page-text" style="text-align:center; font-style:italic; margin-left:36px;">
+      Une fois trouvé — ouvre. Un nouveau QR code t'attend à l'intérieur.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
