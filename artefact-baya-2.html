@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L'Ardoise du Souvenir</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Permanent+Marker&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ardoise: #1a1f2e;
+    --ardoise-claire: #252b3a;
+    --craie: #f0ede4;
+    --craie-jaune: #f5e642;
+    --craie-rouge: #e85555;
+    --craie-verte: #5ec46a;
+    --craie-bleue: #5a9ee8;
+    --craie-rose: #e85aaa;
+    --bois: #8b5e3c;
+    --bois-dark: #5a3a1a;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bois-dark);
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 40px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 40px);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    padding: 20px 14px 50px;
+  }
+
+  .container { max-width: 680px; margin: 0 auto; }
+
+  .page { display:none; animation: fadeIn 0.6s ease; }
+  .page.active { display:block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+  /* CADRE EN BOIS */
+  .bois-frame {
+    background: var(--bois);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.1);
+    position: relative;
+  }
+
+  .bois-frame::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 8px;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 2px,
+      transparent 2px, transparent 20px
+    );
+    pointer-events: none;
+  }
+
+  /* ARDOISE */
+  .ardoise {
+    background: var(--ardoise);
+    border-radius: 4px;
+    padding: 30px 24px;
+    min-height: 300px;
+    position: relative;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+
+  /* Texture ardoise */
+  .ardoise::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  /* Craie title */
+  .craie-title {
+    font-family: 'Permanent Marker', cursive;
+    font-size: 28px;
+    color: var(--craie);
+    text-align: center;
+    margin-bottom: 6px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    letter-spacing: 2px;
+  }
+
+  .craie-sub {
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    color: var(--craie-jaune);
+    text-align: center;
+    margin-bottom: 20px;
+    opacity: 0.9;
+  }
+
+  /* Ligne déco craie */
+  .craie-line {
+    border: none;
+    border-top: 2px solid rgba(240,237,228,0.3);
+    margin: 16px 0;
+  }
+
+  .craie-line-color {
+    border-top-color: rgba(94,196,106,0.4);
+  }
+
+  /* Dessin craie pintes */
+  .pintes-deco {
+    text-align: center;
+    font-size: 28px;
+    letter-spacing: 12px;
+    margin: 10px 0;
+  }
+
+  /* Texte craie */
+  .craie-text {
+    font-family: 'Caveat', cursive;
+    font-size: 19px;
+    color: var(--craie);
+    line-height: 1.8;
+    margin-bottom: 14px;
+    opacity: 0.92;
+  }
+
+  .craie-text em {
+    color: var(--craie-jaune);
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  .craie-text .rouge { color: var(--craie-rouge); font-weight: 700; }
+  .craie-text .bleu { color: var(--craie-bleue); font-weight: 700; }
+  .craie-text .vert { color: var(--craie-verte); font-weight: 700; }
+  .craie-text .rose { color: var(--craie-rose); font-weight: 700; }
+
+  /* ÉNIGME BOX */
+  .enigme-box {
+    border: 2px dashed rgba(240,237,228,0.3);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin: 16px 0;
+    position: relative;
+  }
+
+  .enigme-box-label {
+    position: absolute;
+    top: -11px; left: 14px;
+    background: var(--ardoise);
+    padding: 0 8px;
+    font-family: 'Caveat', cursive;
+    font-size: 14px;
+    color: var(--craie-jaune);
+    letter-spacing: 2px;
+  }
+
+  .enigme-question {
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: var(--craie);
+    line-height: 1.7;
+    text-align: center;
+  }
+
+  /* ROBE DESSIN */
+  .robe-deco {
+    text-align: center;
+    margin: 14px 0;
+    font-size: 13px;
+    font-family: 'Caveat', cursive;
+    color: var(--craie);
+    opacity: 0.7;
+  }
+
+  .robe-svg {
+    display: block;
+    margin: 0 auto 6px;
+  }
+
+  /* INPUT */
+  input[type="text"] {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(240,237,228,0.3);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: var(--craie);
+    outline: none;
+    text-align: center;
+    letter-spacing: 3px;
+    transition: all 0.3s;
+    margin: 12px 0 6px;
+  }
+  input:focus { border-color: var(--craie-jaune); box-shadow: 0 0 15px rgba(245,230,66,0.2); }
+  input::placeholder { color: rgba(240,237,228,0.3); font-size: 16px; letter-spacing:1px; }
+
+  .err {
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    color: var(--craie-rouge);
+    text-align: center;
+    display: none;
+    margin-top: 4px;
+  }
+
+  /* BOUTON */
+  .btn {
+    display: block;
+    width: 100%;
+    margin-top: 18px;
+    padding: 15px;
+    background: transparent;
+    color: var(--craie-jaune);
+    font-family: 'Permanent Marker', cursive;
+    font-size: 15px;
+    letter-spacing: 2px;
+    border: 2px solid var(--craie-jaune);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { background: rgba(245,230,66,0.1); transform: scale(0.98); }
+
+  /* GESTE BOX */
+  .geste-box {
+    background: rgba(232,85,85,0.1);
+    border: 2px dashed var(--craie-rouge);
+    border-radius: 8px;
+    padding: 18px 16px;
+    margin: 16px 0;
+    text-align: center;
+  }
+
+  .geste-emoji { font-size: 40px; display: block; margin-bottom: 10px; animation: wobble 1.5s ease-in-out infinite; }
+  @keyframes wobble {
+    0%,100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+  }
+
+  .geste-text {
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    color: var(--craie-rouge);
+    line-height: 1.7;
+    font-weight: 700;
+  }
+
+  /* PROGRESS */
+  .progress-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .p-seg { height: 4px; flex:1; background: rgba(240,237,228,0.15); border-radius: 2px; transition: all 0.4s; }
+  .p-seg.done { background: var(--craie-verte); }
+  .p-seg.active { background: var(--craie-jaune); }
+
+  /* FINAL */
+  .final-ardoise { text-align: center; }
+
+  .final-big {
+    font-family: 'Permanent Marker', cursive;
+    font-size: 42px;
+    color: var(--craie-jaune);
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.4);
+    margin: 14px 0 6px;
+    animation: glow-chalk 2s ease-in-out infinite;
+  }
+
+  @keyframes glow-chalk {
+    0%,100% { text-shadow: 3px 3px 0 rgba(0,0,0,0.4), 0 0 20px rgba(245,230,66,0.2); }
+    50% { text-shadow: 3px 3px 0 rgba(0,0,0,0.4), 0 0 40px rgba(245,230,66,0.5); }
+  }
+
+  .final-ville {
+    font-family: 'Caveat', cursive;
+    font-size: 24px;
+    color: var(--craie-bleue);
+    margin-bottom: 20px;
+  }
+
+  .direction-box {
+    background: rgba(94,196,106,0.1);
+    border: 2px solid var(--craie-verte);
+    border-radius: 8px;
+    padding: 20px 16px;
+    margin: 16px 0;
+  }
+
+  .direction-emoji { font-size: 44px; display: block; margin-bottom: 10px; animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+  .direction-text {
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: var(--craie-verte);
+    line-height: 1.7;
+    font-weight: 700;
+  }
+
+  .direction-sub {
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    color: var(--craie);
+    opacity: 0.7;
+    margin-top: 8px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- PAGE 0 : INTRO -->
+<div class="page active" id="page-0">
+  <div class="bois-frame">
+    <div class="ardoise">
+      <div class="craie-title">L'Ardoise du Souvenir</div>
+      <div class="craie-sub">~ une nuit qui a tout changé ~</div>
+      <hr class="craie-line">
+
+      <div class="pintes-deco">🍺 🍺 🍺</div>
+
+      <div class="craie-text" style="text-align:center; margin-top:14px;">
+        Il y a une soirée que tu n'as pas oubliée.<br>
+        Des pintes. Des rires. Et un moment<br>
+        qui t'a valu une réputation.<br><br>
+        <em>Deux énigmes pour te rappeler.</em>
+      </div>
+
+      <hr class="craie-line">
+      <button class="btn" onclick="goTo(1)">OUVRIR L'ARDOISE →</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 1 : ÉNIGME 1 — LA ROBE -->
+<div class="page" id="page-1">
+  <div class="bois-frame">
+    <div class="ardoise">
+      <div class="progress-bar">
+        <div class="p-seg active"></div>
+        <div class="p-seg"></div>
+      </div>
+
+      <div class="craie-title" style="font-size:22px;">La robe qui a tout déclenché</div>
+      <hr class="craie-line">
+
+      <div class="craie-text">
+        Ce soir-là, elle portait une robe.<br>
+        <span class="rouge">Rouge</span> comme une alarme.<br>
+        Avec des <span class="craie">petites fleurs blanches</span> dessus.<br><br>
+        Tu l'as vue. Et quelque chose en toi a décidé<br>
+        que cette soirée allait <em>très bien se passer.</em>
+      </div>
+
+      <!-- Robe dessinée en SVG craie -->
+      <div class="robe-deco">
+        <svg class="robe-svg" width="80" height="100" viewBox="0 0 80 100">
+          <!-- Corps robe -->
+          <path d="M25,20 L15,90 L65,90 L55,20 Z" fill="#e85555" opacity="0.85"/>
+          <!-- Haut robe -->
+          <path d="M25,20 Q40,10 55,20 L60,35 Q40,30 20,35 Z" fill="#c03030" opacity="0.9"/>
+          <!-- Bretelles -->
+          <line x1="30" y1="20" x2="25" y2="8" stroke="#c03030" stroke-width="3" stroke-linecap="round"/>
+          <line x1="50" y1="20" x2="55" y2="8" stroke="#c03030" stroke-width="3" stroke-linecap="round"/>
+          <!-- Fleurs blanches -->
+          <g opacity="0.9">
+            <!-- Fleur 1 -->
+            <circle cx="35" cy="48" r="2" fill="white"/>
+            <circle cx="35" cy="44" r="1.5" fill="white"/>
+            <circle cx="35" cy="52" r="1.5" fill="white"/>
+            <circle cx="31" cy="48" r="1.5" fill="white"/>
+            <circle cx="39" cy="48" r="1.5" fill="white"/>
+            <!-- Fleur 2 -->
+            <circle cx="50" cy="58" r="2" fill="white"/>
+            <circle cx="50" cy="54" r="1.5" fill="white"/>
+            <circle cx="50" cy="62" r="1.5" fill="white"/>
+            <circle cx="46" cy="58" r="1.5" fill="white"/>
+            <circle cx="54" cy="58" r="1.5" fill="white"/>
+            <!-- Fleur 3 -->
+            <circle cx="30" cy="68" r="2" fill="white"/>
+            <circle cx="30" cy="64" r="1.5" fill="white"/>
+            <circle cx="30" cy="72" r="1.5" fill="white"/>
+            <circle cx="26" cy="68" r="1.5" fill="white"/>
+            <circle cx="34" cy="68" r="1.5" fill="white"/>
+            <!-- Fleur 4 -->
+            <circle cx="48" cy="76" r="2" fill="white"/>
+            <circle cx="48" cy="72" r="1.5" fill="white"/>
+            <circle cx="48" cy="80" r="1.5" fill="white"/>
+            <circle cx="44" cy="76" r="1.5" fill="white"/>
+            <circle cx="52" cy="76" r="1.5" fill="white"/>
+          </g>
+        </svg>
+        la robe rouge à fleurs blanches
+      </div>
+
+      <div class="enigme-box">
+        <div class="enigme-box-label">🍺 INDICE</div>
+        <div class="enigme-question">
+          Cette robe, tu l'as vue dans un bar.<br>
+          Un bar avec un nom qui sonne chaud,<br>
+          comme le soleil du Pays Basque.<br>
+          Commence par <span style="color:var(--craie-jaune);">B</span>.<br><br>
+          C'est là que tout a commencé.
+        </div>
+      </div>
+
+      <input type="text" id="r1" placeholder="Le nom du bar..." oninput="this.value=this.value.toUpperCase()">
+      <div class="err" id="e1">❌ Non... pense à ce bar de Capbreton où tu avais bien bu 🍺</div>
+      <button class="btn" onclick="check(1,['BAYA','LE BAYA'],2)">VALIDER</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2 : ÉNIGME 2 — LE GESTE -->
+<div class="page" id="page-2">
+  <div class="bois-frame">
+    <div class="ardoise">
+      <div class="progress-bar">
+        <div class="p-seg done"></div>
+        <div class="p-seg active"></div>
+      </div>
+
+      <div class="craie-title" style="font-size:22px;">Le geste légendaire</div>
+      <hr class="craie-line">
+
+      <div class="craie-text">
+        Les pintes aidant, tu t'es approché.<br>
+        Tu avais peut-être les yeux qui brillaient.<br>
+        Ou peut-être que c'était <em>juste le courage du houblon.</em><br><br>
+        Toujours est-il que tu as fait <span class="rouge">le geste</span>.<br>
+        Celui dont on parle encore. 😄
+      </div>
+
+      <div class="geste-box">
+        <span class="geste-emoji">👃</span>
+        <div class="geste-text">
+          Avant de continuer —<br>
+          refais le geste légendaire.<br>
+          Devant Blandine.<br>
+          Maintenant.
+        </div>
+      </div>
+
+      <div class="craie-text" style="text-align:center; font-size:16px; opacity:0.7; margin-top:8px;">
+        (tu sais très bien de quoi on parle)
+      </div>
+
+      <hr class="craie-line">
+
+      <div class="craie-text" style="font-size:16px;">
+        Une fois le geste accompli avec bravoure,<br>tape <em>"FAIT"</em> ci-dessous pour valider.
+      </div>
+
+      <input type="text" id="r2" placeholder="Tape FAIT quand c'est fait..." oninput="this.value=this.value.toUpperCase()">
+      <div class="err" id="e2">❌ Allez... courage ! 😄</div>
+      <button class="btn" onclick="check(2,['FAIT','OUI','OK','YES'],'final')">VALIDER 🍺</button>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div class="page" id="page-final">
+  <div class="bois-frame">
+    <div class="ardoise">
+      <div class="final-ardoise">
+        <div class="pintes-deco" style="font-size:36px; margin-bottom:10px;">🍺</div>
+        <div class="final-big">LE BAYA</div>
+        <div class="final-ville">Capbreton</div>
+
+        <div class="craie-text" style="text-align:center; margin-bottom:20px;">
+          C'est là que tout a commencé.<br>
+          Une robe rouge à fleurs blanches.<br>
+          Quelques pintes. Un nez aventurier.<br>
+          Et le reste... tu t'en souviens. 😄
+        </div>
+
+        <div class="direction-box">
+          <span class="direction-emoji">🍺</span>
+          <div class="direction-text">
+            Il est temps d'y retourner.<br>
+            Direction le Baya, Capbreton.
+          </div>
+          <div class="direction-sub">
+            Une pinte t'attend là-bas.<br>
+            Et Blandine aura la suite pour toi. 😉
+          </div>
+        </div>
+
+        <hr class="craie-line" style="margin-top:20px;">
+        <div class="craie-text" style="text-align:center; font-size:15px; opacity:0.6; font-style:italic;">
+          Cette soirée a changé nos vies.<br>
+          Trinquons à la suite. 🤍
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+function goTo(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const id = n === 'final' ? 'page-final' : 'page-' + n;
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function check(num, answers, next) {
+  const input = document.getElementById('r'+num);
+  const err = document.getElementById('e'+num);
+  const val = input.value.trim().toUpperCase();
+  const ok = answers.some(a => val === a.toUpperCase());
+  if (ok) {
+    err.style.display = 'none';
+    input.style.borderColor = '#5ec46a';
+    input.style.boxShadow = '0 0 15px rgba(94,196,106,0.3)';
+    setTimeout(() => goTo(next), 600);
+  } else {
+    err.style.display = 'block';
+    input.style.borderColor = '#e85555';
+    input.animate([
+      {transform:'translateX(-6px)'},{transform:'translateX(6px)'},
+      {transform:'translateX(-4px)'},{transform:'translateX(4px)'},
+      {transform:'translateX(0)'}
+    ], {duration:400});
+  }
+}
+</script>
+</body>
+</html>
